@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TransactionProvider } from "@/context/TransactionContext";
+import { WalletProvider } from "@/context/WalletContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Maya/XEndit Test App",
-  description: "Sandbox E-wallet Transaction Tester",
+  title: "Coinnect - Maya Cash In/Out",
+  description: "Cash In and Cash Out with Maya",
 };
 
 export default function RootLayout({
@@ -28,13 +29,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
       >
-        <TransactionProvider>
-          <div className="min-h-screen flex flex-col items-center justify-center p-4">
-            <main className="w-full max-w-md bg-white shadow-xl rounded-2xl overflow-hidden min-h-[600px] flex flex-col">
-              {children}
-            </main>
-          </div>
-        </TransactionProvider>
+        <WalletProvider>
+          <TransactionProvider>
+            <div className="min-h-screen flex flex-col items-center justify-center p-4">
+              <main className="w-full max-w-md bg-white shadow-xl rounded-2xl overflow-hidden min-h-[600px] flex flex-col">
+                {children}
+              </main>
+            </div>
+          </TransactionProvider>
+        </WalletProvider>
       </body>
     </html>
   );

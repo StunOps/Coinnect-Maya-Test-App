@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useWallet } from "@/context/WalletContext";
 import { Suspense } from "react";
 
 function SuccessContent() {
     const searchParams = useSearchParams();
-    const refId = searchParams.get("ref") || "N/A";
+    const amountParam = searchParams.get("amount");
+    const amount = amountParam ? parseFloat(amountParam) : 0;
+    const { balance } = useWallet();
 
     return (
         <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-green-50 to-white space-y-6 p-8 animate-scaleIn">
@@ -19,32 +22,45 @@ function SuccessContent() {
 
             {/* Success Message */}
             <div className="text-center space-y-2">
-                <h2 className="text-2xl font-bold text-green-800">Cash In Successful!</h2>
-                <p className="text-gray-600">Your Maya payment has been completed.</p>
+                <h2 className="text-2xl font-bold text-green-800">💰 Cash In Successful!</h2>
+                <p className="text-gray-600">Your wallet has been topped up.</p>
             </div>
 
-            {/* Reference ID */}
+            {/* Amount Added */}
             <div className="bg-white rounded-xl shadow-md p-4 w-full max-w-sm">
                 <div className="text-center">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Reference ID</p>
-                    <p className="text-sm font-mono text-gray-700 mt-1 break-all">{refId}</p>
+                    <p className="text-xs text-gray-400 uppercase tracking-wide">Amount Added</p>
+                    <p className="text-2xl font-bold text-green-600 mt-1">
+                        +₱{amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                    </p>
+                </div>
+            </div>
+
+            {/* New Balance */}
+            <div className="bg-green-50 rounded-xl p-4 w-full max-w-sm border border-green-200">
+                <div className="text-center">
+                    <p className="text-xs text-green-600 uppercase tracking-wide">New Wallet Balance</p>
+                    <p className="text-3xl font-bold text-green-800 mt-1">
+                        ₱{balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                    </p>
                 </div>
             </div>
 
             {/* Action Buttons */}
             <div className="space-y-3 w-full max-w-sm mt-4">
                 <Link
-                    href="/"
+                    href="/select-transaction"
                     className="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all text-center"
                 >
                     New Transaction
                 </Link>
+                <Link
+                    href="/"
+                    className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-all text-center"
+                >
+                    Back to Home
+                </Link>
             </div>
-
-            {/* Maya Logo/Branding */}
-            <p className="text-xs text-gray-400 mt-4">
-                Powered by Maya Sandbox
-            </p>
         </div>
     );
 }
