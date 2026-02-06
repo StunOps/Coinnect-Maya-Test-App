@@ -14,6 +14,13 @@ interface XenditResponse {
     error?: string;
 }
 
+interface MayaResponse {
+    checkoutId?: string;
+    redirectUrl?: string;
+    referenceId?: string;
+    error?: string;
+}
+
 export default function Processing() {
     const { transaction } = useTransaction();
     const [status, setStatus] = useState<"PROCESSING" | "ACTION_REQUIRED" | "SUCCESS" | "ERROR">("PROCESSING");
@@ -54,11 +61,30 @@ export default function Processing() {
                         setStatus("SUCCESS");
                     }
 
-                } else {
-                    // Keep simulated mock for Cash In (Maya Sandbox not yet integrated per plan)
-                    setTimeout(() => {
-                        setStatus("SUCCESS");
-                    }, 3000);
+                } else if (transaction.type === "CASH_IN") {
+                    // Call Maya API for Cash In
+                    const res = await fetch("/api/maya/cash-in", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            amount: transaction.amount
+                        })
+                    });
+                    const data: MayaResponse = await res.json();
+
+                    if (data.error) {
+                        setStatus("ERROR");
+                        setErrorMsg(data.error);
+                        return;
+                    }
+
+                    if (data.redirectUrl) {
+                        // Redirect to Maya checkout page
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        setStatus("ERROR");
+                        setErrorMsg("No redirect URL received from Maya");
+                    }
                 }
             } catch (err) {
                 console.error(err)
