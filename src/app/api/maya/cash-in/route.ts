@@ -11,25 +11,25 @@ export async function POST(request: Request) {
             );
         }
 
-        const secretKey = process.env.MAYA_SECRET_KEY;
-        if (!secretKey) {
+        // Pay with Maya API uses PUBLIC key for authentication
+        const publicKey = process.env.MAYA_PUBLIC_KEY;
+        if (!publicKey) {
             return NextResponse.json(
-                { error: "Server misconfiguration: Missing Maya API key" },
+                { error: "Server misconfiguration: Missing Maya Public API key" },
                 { status: 500 }
             );
         }
 
-        // Create Basic Auth header (secret key + ":" encoded in base64)
-        const authHeader = `Basic ${Buffer.from(secretKey + ":").toString("base64")}`;
+        // Create Basic Auth header (public key + ":" encoded in base64)
+        const authHeader = `Basic ${Buffer.from(publicKey + ":").toString("base64")}`;
 
-        // Generate unique reference ID
-        const referenceId = `CASHIN-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+        // Generate unique reference ID (max 36 chars)
+        const referenceId = `CASHIN-${Date.now()}`;
 
         // Get the base URL for redirect URLs
-        // Use APP_URL from env for ngrok/production, fallback to origin header
         const origin = process.env.APP_URL || request.headers.get("origin") || "http://localhost:3000";
 
-        // Maya Checkout API payload
+        // Pay with Maya API payload (different from Checkout API)
         const payload = {
             totalAmount: {
                 value: amount,
@@ -40,16 +40,14 @@ export async function POST(request: Request) {
                 success: `${origin}/cash-in/success?ref=${referenceId}`,
                 failure: `${origin}/cash-in/failed?ref=${referenceId}`,
                 cancel: `${origin}/cash-in/cancelled?ref=${referenceId}`
-            },
-            metadata: {
-                description: "Test Cash In Transaction"
             }
         };
 
-        console.log("Creating Maya Checkout:", payload);
+        console.log("Creating Pay with Maya Payment:", payload);
+        console.log("Using APP_URL:", origin);
 
-        // Call Maya Checkout API
-        const response = await fetch("https://pg-sandbox.paymaya.com/checkout/v1/checkouts", {
+        // Call Pay with Maya API (different endpoint from Checkout)
+        const response = await fetch("https://pg-sandbox.paymaya.com/payby/v2/paymaya/payments", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -68,11 +66,11 @@ export async function POST(request: Request) {
             );
         }
 
-        console.log("Maya Checkout Created:", data);
+        console.log("Pay with Maya Payment Created:", data);
 
-        // Return the checkout ID and redirect URL
+        // Pay with Maya returns paymentId and redirectUrl
         return NextResponse.json({
-            checkoutId: data.checkoutId,
+            paymentId: data.paymentId,
             redirectUrl: data.redirectUrl,
             referenceId: referenceId
         });
