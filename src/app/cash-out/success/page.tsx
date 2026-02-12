@@ -2,11 +2,28 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { useTransaction } from "@/context/TransactionContext";
 
 function SuccessContent() {
     const searchParams = useSearchParams();
-    const refId = searchParams.get("ref") || "N/A";
+    const { transaction } = useTransaction();
+
+    // Amount comes from the MacroDroid notification (passed via URL param), not user input
+    const receivedAmount = Number(searchParams.get("amount")) || transaction.amount || 0;
+    const fee = 10; // Static ₱10 transaction fee
+    const total = receivedAmount + fee;
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("en-PH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+    const formattedTime = now.toLocaleTimeString("en-PH", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 
     return (
         <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-green-50 to-white space-y-6 p-8 animate-scaleIn">
@@ -20,15 +37,40 @@ function SuccessContent() {
             {/* Success Message */}
             <div className="text-center space-y-2">
                 <h2 className="text-2xl font-bold text-green-800">💵 Cash Out Successful!</h2>
-                <p className="text-gray-600">Your Maya payment has been completed.</p>
+                <p className="text-gray-600">Your payment has been confirmed.</p>
                 <p className="text-gray-500 text-sm">Please collect your cash from the machine.</p>
             </div>
 
-            {/* Reference ID */}
-            <div className="bg-white rounded-xl shadow-md p-4 w-full max-w-sm">
-                <div className="text-center">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Reference ID</p>
-                    <p className="text-sm font-mono text-gray-700 mt-1 break-all">{refId}</p>
+            {/* Transaction Details */}
+            <div className="bg-white rounded-xl shadow-md p-6 w-full max-w-sm space-y-4 border border-gray-100">
+                <h3 className="text-xs text-gray-400 uppercase tracking-wide text-center font-bold">Transaction Details</h3>
+
+                <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <span className="text-gray-500 text-sm">Phone Number</span>
+                    <span className="font-mono font-bold text-gray-800">{transaction.phoneNumber || "N/A"}</span>
+                </div>
+
+                <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <span className="text-gray-500 text-sm">Amount Received</span>
+                    <span className="font-bold text-green-700 text-lg">₱ {receivedAmount.toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <span className="text-gray-500 text-sm">Transaction Fee</span>
+                    <span className="font-bold text-red-500">₱ {fee.toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <span className="text-gray-500 text-sm">Total</span>
+                    <span className="font-bold text-blue-700 text-lg">₱ {total.toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between items-center pt-1">
+                    <span className="text-gray-500 text-sm">Date & Time</span>
+                    <div className="text-right">
+                        <p className="font-bold text-gray-800 text-sm">{formattedDate}</p>
+                        <p className="text-gray-500 text-xs">{formattedTime}</p>
+                    </div>
                 </div>
             </div>
 
@@ -42,15 +84,20 @@ function SuccessContent() {
                 </Link>
             </div>
 
-            {/* Maya Logo/Branding */}
+            {/* Branding */}
             <p className="text-xs text-gray-400 mt-4">
-                Powered by Maya
+                Powered by Maya × MacroDroid
             </p>
         </div>
     );
 }
 
 export default function CashOutSuccess() {
+    // Reset payment status on load so we don't loop
+    useEffect(() => {
+        fetch('/api/payment-status', { method: 'DELETE' }).catch(console.error);
+    }, []);
+
     return (
         <Suspense fallback={
             <div className="flex items-center justify-center h-full">

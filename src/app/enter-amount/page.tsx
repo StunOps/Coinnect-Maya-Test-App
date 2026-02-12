@@ -24,7 +24,7 @@ export default function EnterAmount() {
 
     return (
         <div className="flex flex-col h-full animate-fadeIn">
-            <header className="bg-blue-600 text-white p-6 shadow-md">
+            <header className="bg-green-600 text-white p-6 shadow-md">
                 <h1 className="text-xl font-bold">Enter Amount</h1>
                 <p className="text-xs opacity-80 mt-1">For: {transaction.phoneNumber}</p>
             </header>
@@ -40,7 +40,7 @@ export default function EnterAmount() {
                             id="amount"
                             type="tel" // triggers numpad on mobile
                             placeholder="0"
-                            className={`w-full text-4xl pl-8 p-4 border-b-2 outline-none transition-colors font-mono tracking-wide ${error ? "border-red-500 text-red-600" : "border-gray-300 focus:border-blue-500"
+                            className={`w-full text-4xl pl-8 p-4 border-b-2 outline-none transition-colors font-mono tracking-wide ${error ? "border-red-500 text-red-600" : "border-gray-300 focus:border-green-500"
                                 }`}
                             value={input}
                             onChange={(e) => {
@@ -58,7 +58,7 @@ export default function EnterAmount() {
                     <button
                         type="submit"
                         disabled={!input || parseInt(input) <= 0}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg transition-all"
+                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg transition-all"
                     >
                         Proceed
                     </button>

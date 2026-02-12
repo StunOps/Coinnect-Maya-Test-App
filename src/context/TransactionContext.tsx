@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-type TransactionType = "CASH_IN" | "CASH_OUT" | null;
+type TransactionType = "CASH_IN" | "CASH_OUT" | "MACRODROID_CASHOUT" | null;
 
 interface TransactionState {
   provider: "Maya";
@@ -42,9 +42,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setAmount = (amount: number) => {
-    // Calculate fee (example: 2% or fixed 15 pesos? User didn't specify, I'll use 2% for testing logic)
-    // Actually user showed: Amount Transfer | Transaction Fee | Total Due
-    const fee = Math.round(amount * 0.02); 
+    const fee = 10; // Static ₱10 transaction fee
     const total = amount + fee;
     setTransaction((prev) => ({ ...prev, amount, fee, total }));
   };
