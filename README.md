@@ -35,7 +35,7 @@ A Next.js application for a self-service kiosk handling Cash In and Cash Out tra
 
 4.  **Run the Development Server:**
     ```bash
-    npm run dev
+    npm run dev -- -H 0.0.0.0
     ```
     Open [http://localhost:3000](http://localhost:3000) with your browser.
 
